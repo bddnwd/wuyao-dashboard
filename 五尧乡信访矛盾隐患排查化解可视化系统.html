@@ -1,0 +1,1732 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>五尧乡信访矛盾隐患排查化解台账 - 数据可视化系统</title>
+    
+    <!-- 引入Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 引入Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+    
+    <!-- 引入Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    
+    <!-- 引入SheetJS用于Excel处理 -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    
+    <!-- Tailwind配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1e40af',
+                        secondary: '#3b82f6',
+                        accent: '#60a5fa',
+                        success: '#10b981',
+                        warning: '#f59e0b',
+                        danger: '#ef4444',
+                        info: '#3b82f6',
+                        light: '#f3f4f6',
+                        dark: '#1f2937'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .card-shadow {
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            }
+            .gradient-bg {
+                background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            .animate-fade-in {
+                animation: fadeIn 0.5s ease-in-out;
+            }
+            .animate-slide-up {
+                animation: slideUp 0.5s ease-in-out;
+            }
+            .animate-pulse-slow {
+                animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+    </style>
+    
+    <!-- 模拟数据 -->
+    <script>
+        const mockData = [
+  {
+    "序号": 1,
+    "所属村居": "南五尧村",
+    "排查日期": "2024.12.13",
+    "姓名": "信访人1",
+    "身份证号码": "130604197506294563",
+    "详细住址": "南五尧村17号",
+    "联系方式": "13687456291",
+    "反映内容摘要": "关于土地纠纷的反映",
+    "内容分类": "土地纠纷",
+    "是否曾发生过信访行为": "是",
+    "是否属于重复上访老户": "否",
+    "涉及群体": "个人",
+    "风险等级": "中",
+    "县级包联领导": "李四（乡长）",
+    "责任单位": "南五尧村村委会",
+    "责任人": "责任人1",
+    "是否明确二包一稳控措施": "是",
+    "拟化解日期": "2025.01.10",
+    "实际化解日期": "2024.12.20",
+    "问题解决情况": "问题已解决到位",
+    "信访人息诉罢访情况": "表示满意认可隐患已消除",
+    "人员稳定情况": "稳定",
+    "备注": "备注信息1"
+  },
+  {
+    "序号": 2,
+    "所属村居": "东五尧村",
+    "排查日期": "2024.12.01",
+    "姓名": "信访人2",
+    "身份证号码": "130604198611148921",
+    "详细住址": "东五尧村12号",
+    "联系方式": "13968745321",
+    "反映内容摘要": "关于村务管理的反映",
+    "内容分类": "村务管理",
+    "是否曾发生过信访行为": "否",
+    "是否属于重复上访老户": "否",
+    "涉及群体": "5人以下",
+    "风险等级": "低",
+    "县级包联领导": "张三（书记）",
+    "责任单位": "东五尧村村委会",
+    "责任人": "责任人2",
+    "是否明确二包一稳控措施": "是",
+    "拟化解日期": "2025.01.15",
+    "实际化解日期": "2024.12.25",
+    "问题解决情况": "已制定解决方案正在推进中",
+    "信访人息诉罢访情况": "表示理解但未完全满意",
+    "人员稳定情况": "稳定",
+    "备注": "备注信息2"
+  },
+  {
+    "序号": 3,
+    "所属村居": "中五尧村",
+    "排查日期": "2024.11.28",
+    "姓名": "信访人3",
+    "身份证号码": "130604199203056789",
+    "详细住址": "中五尧村8号",
+    "联系方式": "13876543210",
+    "反映内容摘要": "关于环境保护的反映",
+    "内容分类": "环境保护",
+    "是否曾发生过信访行为": "是",
+    "是否属于重复上访老户": "是",
+    "涉及群体": "10人以上",
+    "风险等级": "高",
+    "县级包联领导": "王五（副乡长）",
+    "责任单位": "中五尧村村委会",
+    "责任人": "责任人3",
+    "是否明确二包一稳控措施": "是",
+    "拟化解日期": "2025.01.20",
+    "实际化解日期": null,
+    "问题解决情况": "正在制定解决方案",
+    "信访人息诉罢访情况": "表示不满意",
+    "人员稳定情况": "不稳定",
+    "备注": "备注信息3"
+  },
+  {
+    "序号": 4,
+    "所属村居": "小汲店村",
+    "排查日期": "2024.11.20",
+    "姓名": "信访人4",
+    "身份证号码": "130604196809172345",
+    "详细住址": "小汲店村15号",
+    "联系方式": "13765432109",
+    "反映内容摘要": "关于土地纠纷的反映",
+    "内容分类": "土地纠纷",
+    "是否曾发生过信访行为": "否",
+    "是否属于重复上访老户": "否",
+    "涉及群体": "个人",
+    "风险等级": "中",
+    "县级包联领导": "赵六（主任）",
+    "责任单位": "小汲店村村委会",
+    "责任人": "责任人4",
+    "是否明确二包一稳控措施": "否",
+    "拟化解日期": "2025.01.25",
+    "实际化解日期": "2024.12.15",
+    "问题解决情况": "问题已解决到位",
+    "信访人息诉罢访情况": "表示满意认可隐患已消除",
+    "人员稳定情况": "稳定",
+    "备注": "备注信息4"
+  },
+  {
+    "序号": 5,
+    "所属村居": "安庄村",
+    "排查日期": "2024.11.15",
+    "姓名": "信访人5",
+    "身份证号码": "130604197912038765",
+    "详细住址": "安庄村5号",
+    "联系方式": "13543210987",
+    "反映内容摘要": "关于邻里矛盾的反映",
+    "内容分类": "邻里矛盾",
+    "是否曾发生过信访行为": "是",
+    "是否属于重复上访老户": "否",
+    "涉及群体": "5人以下",
+    "风险等级": "低",
+    "县级包联领导": "孙七（副主任）",
+    "责任单位": "安庄村村委会",
+    "责任人": "责任人5",
+    "是否明确二包一稳控措施": "是",
+    "拟化解日期": "2025.01.30",
+    "实际化解日期": "2024.12.10",
+    "问题解决情况": "已制定解决方案正在推进中",
+    "信访人息诉罢访情况": "表示理解但未完全满意",
+    "人员稳定情况": "稳定",
+    "备注": "备注信息5"
+  },
+  {
+    "序号": 6,
+    "所属村居": "北五尧村",
+    "排查日期": "2024.11.10",
+    "姓名": "信访人6",
+    "身份证号码": "130604198307221234",
+    "详细住址": "北五尧村18号",
+    "联系方式": "13432109876",
+    "反映内容摘要": "关于拆迁安置的反映",
+    "内容分类": "拆迁安置",
+    "是否曾发生过信访行为": "否",
+    "是否属于重复上访老户": "否",
+    "涉及群体": "10人以上",
+    "风险等级": "高",
+    "县级包联领导": "张三（书记）",
+    "责任单位": "北五尧村村委会",
+    "责任人": "责任人6",
+    "是否明确二包一稳控措施": "是",
+    "拟化解日期": "2025.02.05",
+    "实际化解日期": null,
+    "问题解决情况": "正在制定解决方案",
+    "信访人息诉罢访情况": "表示不满意",
+    "人员稳定情况": "不稳定",
+    "备注": "备注信息6"
+  },
+  {
+    "序号": 7,
+    "所属村居": "西五尧村",
+    "排查日期": "2024.11.05",
+    "姓名": "信访人7",
+    "身份证号码": "130604199104156789",
+    "详细住址": "西五尧村3号",
+    "联系方式": "13321098765",
+    "反映内容摘要": "关于劳动保障的反映",
+    "内容分类": "劳动保障",
+    "是否曾发生过信访行为": "是",
+    "是否属于重复上访老户": "是",
+    "涉及群体": "个人",
+    "风险等级": "中",
+    "县级包联领导": "李四（乡长）",
+    "责任单位": "西五尧村村委会",
+    "责任人": "责任人7",
+    "是否明确二包一稳控措施": "是",
+    "拟化解日期": "2025.02.10",
+    "实际化解日期": "2024.12.05",
+    "问题解决情况": "问题已解决到位",
+    "信访人息诉罢访情况": "表示满意认可隐患已消除",
+    "人员稳定情况": "稳定",
+    "备注": "备注信息7"
+  },
+  {
+    "序号": 8,
+    "所属村居": "南五尧村",
+    "排查日期": "2024.10.30",
+    "姓名": "信访人8",
+    "身份证号码": "130604197708192345",
+    "详细住址": "南五尧村12号",
+    "联系方式": "13210987654",
+    "反映内容摘要": "关于村务管理的反映",
+    "内容分类": "村务管理",
+    "是否曾发生过信访行为": "否",
+    "是否属于重复上访老户": "否",
+    "涉及群体": "5人以下",
+    "风险等级": "低",
+    "县级包联领导": "王五（副乡长）",
+    "责任单位": "南五尧村村委会",
+    "责任人": "责任人8",
+    "是否明确二包一稳控措施": "否",
+    "拟化解日期": "2025.02.15",
+    "实际化解日期": "2024.12.01",
+    "问题解决情况": "已制定解决方案正在推进中",
+    "信访人息诉罢访情况": "表示理解但未完全满意",
+    "人员稳定情况": "稳定",
+    "备注": "备注信息8"
+  },
+  {
+    "序号": 9,
+    "所属村居": "东五尧村",
+    "排查日期": "2024.10.25",
+    "姓名": "信访人9",
+    "身份证号码": "130604198803127890",
+    "详细住址": "东五尧村7号",
+    "联系方式": "13109876543",
+    "反映内容摘要": "关于环境保护的反映",
+    "内容分类": "环境保护",
+    "是否曾发生过信访行为": "是",
+    "是否属于重复上访老户": "否",
+    "涉及群体": "10人以上",
+    "风险等级": "高",
+    "县级包联领导": "赵六（主任）",
+    "责任单位": "东五尧村村委会",
+    "责任人": "责任人9",
+    "是否明确二包一稳控措施": "是",
+    "拟化解日期": "2025.02.20",
+    "实际化解日期": null,
+    "问题解决情况": "正在制定解决方案",
+    "信访人息诉罢访情况": "表示不满意",
+    "人员稳定情况": "不稳定",
+    "备注": "备注信息9"
+  },
+  {
+    "序号": 10,
+    "所属村居": "中五尧村",
+    "排查日期": "2024.10.20",
+    "姓名": "信访人10",
+    "身份证号码": "130604196911054321",
+    "详细住址": "中五尧村14号",
+    "联系方式": "13098765432",
+    "反映内容摘要": "关于土地纠纷的反映",
+    "内容分类": "土地纠纷",
+    "是否曾发生过信访行为": "否",
+    "是否属于重复上访老户": "否",
+    "涉及群体": "个人",
+    "风险等级": "中",
+    "县级包联领导": "孙七（副主任）",
+    "责任单位": "中五尧村村委会",
+    "责任人": "责任人10",
+    "是否明确二包一稳控措施": "是",
+    "拟化解日期": "2025.02.25",
+    "实际化解日期": "2024.11.28",
+    "问题解决情况": "问题已解决到位",
+    "信访人息诉罢访情况": "表示满意认可隐患已消除",
+    "人员稳定情况": "稳定",
+    "备注": "备注信息10"
+  },
+  {
+    "序号": 11,
+    "所属村居": "小汲店村",
+    "排查日期": "2024.10.15",
+    "姓名": "信访人11",
+    "身份证号码": "130604197305228765",
+    "详细住址": "小汲店村9号",
+    "联系方式": "13987654321",
+    "反映内容摘要": "关于邻里矛盾的反映",
+    "内容分类": "邻里矛盾",
+    "是否曾发生过信访行为": "是",
+    "是否属于重复上访老户": "是",
+    "涉及群体": "5人以下",
+    "风险等级": "低",
+    "县级包联领导": "张三（书记）",
+    "责任单位": "小汲店村村委会",
+    "责任人": "责任人11",
+    "是否明确二包一稳控措施": "否",
+    "拟化解日期": "2025.03.01",
+    "实际化解日期": "2024.11.25",
+    "问题解决情况": "已制定解决方案正在推进中",
+    "信访人息诉罢访情况": "表示理解但未完全满意",
+    "人员稳定情况": "稳定",
+    "备注": "备注信息11"
+  },
+  {
+    "序号": 12,
+    "所属村居": "安庄村",
+    "排查日期": "2024.10.10",
+    "姓名": "信访人12",
+    "身份证号码": "130604198409173456",
+    "详细住址": "安庄村11号",
+    "联系方式": "13876543210",
+    "反映内容摘要": "关于拆迁安置的反映",
+    "内容分类": "拆迁安置",
+    "是否曾发生过信访行为": "否",
+    "是否属于重复上访老户": "否",
+    "涉及群体": "10人以上",
+    "风险等级": "高",
+    "县级包联领导": "李四（乡长）",
+    "责任单位": "安庄村村委会",
+    "责任人": "责任人12",
+    "是否明确二包一稳控措施": "是",
+    "拟化解日期": "2025.03.05",
+    "实际化解日期": null,
+    "问题解决情况": "正在制定解决方案",
+    "信访人息诉罢访情况": "表示不满意",
+    "人员稳定情况": "不稳定",
+    "备注": "备注信息12"
+  },
+  {
+    "序号": 13,
+    "所属村居": "北五尧村",
+    "排查日期": "2024.10.05",
+    "姓名": "信访人13",
+    "身份证号码": "130604199002136789",
+    "详细住址": "北五尧村4号",
+    "联系方式": "13765432109",
+    "反映内容摘要": "关于村务管理的反映",
+    "内容分类": "村务管理",
+    "是否曾发生过信访行为": "是",
+    "是否属于重复上访老户": "否",
+    "涉及群体": "个人",
+    "风险等级": "中",
+    "县级包联领导": "王五（副乡长）",
+    "责任单位": "北五尧村村委会",
+    "责任人": "责任人13",
+    "是否明确二包一稳控措施": "是",
+    "拟化解日期": "2025.03.10",
+    "实际化解日期": "2024.11.20",
+    "问题解决情况": "问题已解决到位",
+    "信访人息诉罢访情况": "表示满意认可隐患已消除",
+    "人员稳定情况": "稳定",
+    "备注": "备注信息13"
+  },
+  {
+    "序号": 14,
+    "所属村居": "南五尧村",
+    "排查日期": "2024.09.30",
+    "姓名": "信访人14",
+    "身份证号码": "130604197107292345",
+    "详细住址": "南五尧村16号",
+    "联系方式": "13654321098",
+    "反映内容摘要": "关于环境保护的反映",
+    "内容分类": "环境保护",
+    "是否曾发生过信访行为": "否",
+    "是否属于重复上访老户": "否",
+    "涉及群体": "5人以下",
+    "风险等级": "低",
+    "县级包联领导": "赵六（主任）",
+    "责任单位": "南五尧村村委会",
+    "责任人": "责任人14",
+    "是否明确二包一稳控措施": "否",
+    "拟化解日期": "2025.03.15",
+    "实际化解日期": "2024.11.15",
+    "问题解决情况": "已制定解决方案正在推进中",
+    "信访人息诉罢访情况": "表示理解但未完全满意",
+    "人员稳定情况": "稳定",
+    "备注": "备注信息14"
+  },
+  {
+    "序号": 15,
+    "所属村居": "东五尧村",
+    "排查日期": "2024.09.25",
+    "姓名": "信访人15",
+    "身份证号码": "130604198212145678",
+    "详细住址": "东五尧村2号",
+    "联系方式": "13543210987",
+    "反映内容摘要": "关于土地纠纷的反映",
+    "内容分类": "土地纠纷",
+    "是否曾发生过信访行为": "是",
+    "是否属于重复上访老户": "是",
+    "涉及群体": "10人以上",
+    "风险等级": "高",
+    "县级包联领导": "孙七（副主任）",
+    "责任单位": "东五尧村村委会",
+    "责任人": "责任人15",
+    "是否明确二包一稳控措施": "是",
+    "拟化解日期": "2025.03.20",
+    "实际化解日期": null,
+    "问题解决情况": "正在制定解决方案",
+    "信访人息诉罢访情况": "表示不满意",
+    "人员稳定情况": "不稳定",
+    "备注": "备注信息15"
+  },
+  {
+    "序号": 16,
+    "所属村居": "中五尧村",
+    "排查日期": "2024.09.20",
+    "姓名": "信访人16",
+    "身份证号码": "130604196704089012",
+    "详细住址": "中五尧村10号",
+    "联系方式": "13432109876",
+    "反映内容摘要": "关于邻里矛盾的反映",
+    "内容分类": "邻里矛盾",
+    "是否曾发生过信访行为": "否",
+    "是否属于重复上访老户": "否",
+    "涉及群体": "个人",
+    "风险等级": "中",
+    "县级包联领导": "张三（书记）",
+    "责任单位": "中五尧村村委会",
+    "责任人": "责任人16",
+    "是否明确二包一稳控措施": "是",
+    "拟化解日期": "2025.03.25",
+    "实际化解日期": "2024.11.10",
+    "问题解决情况": "问题已解决到位",
+    "信访人息诉罢访情况": "表示满意认可隐患已消除",
+    "人员稳定情况": "稳定",
+    "备注": "备注信息16"
+  },
+  {
+    "序号": 17,
+    "所属村居": "小汲店村",
+    "排查日期": "2024.09.15",
+    "姓名": "信访人17",
+    "身份证号码": "130604197808123456",
+    "详细住址": "小汲店村13号",
+    "联系方式": "13321098765",
+    "反映内容摘要": "关于其他问题的反映",
+    "内容分类": "其他问题",
+    "是否曾发生过信访行为": "是",
+    "是否属于重复上访老户": "否",
+    "涉及群体": "5人以下",
+    "风险等级": "低",
+    "县级包联领导": "李四（乡长）",
+    "责任单位": "小汲店村村委会",
+    "责任人": "责任人17",
+    "是否明确二包一稳控措施": "否",
+    "拟化解日期": "2025.03.30",
+    "实际化解日期": "2024.11.05",
+    "问题解决情况": "已制定解决方案正在推进中",
+    "信访人息诉罢访情况": "表示理解但未完全满意",
+    "人员稳定情况": "稳定",
+    "备注": "备注信息17"
+  },
+  {
+    "序号": 18,
+    "所属村居": "安庄村",
+    "排查日期": "2024.09.10",
+    "姓名": "信访人18",
+    "身份证号码": "130604198503276543",
+    "详细住址": "安庄村7号",
+    "联系方式": "13210987654",
+    "反映内容摘要": "关于土地纠纷的反映",
+    "内容分类": "土地纠纷",
+    "是否曾发生过信访行为": "否",
+    "是否属于重复上访老户": "否",
+    "涉及群体": "10人以上",
+    "风险等级": "高",
+    "县级包联领导": "王五（副乡长）",
+    "责任单位": "安庄村村委会",
+    "责任人": "责任人18",
+    "是否明确二包一稳控措施": "是",
+    "拟化解日期": "2025.04.05",
+    "实际化解日期": null,
+    "问题解决情况": "正在制定解决方案",
+    "信访人息诉罢访情况": "表示不满意",
+    "人员稳定情况": "不稳定",
+    "备注": "备注信息18"
+  },
+  {
+    "序号": 19,
+    "所属村居": "北五尧村",
+    "排查日期": "2024.09.05",
+    "姓名": "信访人19",
+    "身份证号码": "130604199309148765",
+    "详细住址": "北五尧村19号",
+    "联系方式": "13109876543",
+    "反映内容摘要": "关于其他问题的反映",
+    "内容分类": "其他问题",
+    "是否曾发生过信访行为": "是",
+    "是否属于重复上访老户": "是",
+    "涉及群体": "个人",
+    "风险等级": "中",
+    "县级包联领导": "赵六（主任）",
+    "责任单位": "北五尧村村委会",
+    "责任人": "责任人19",
+    "是否明确二包一稳控措施": "是",
+    "拟化解日期": "2025.04.10",
+    "实际化解日期": "2024.11.01",
+    "问题解决情况": "问题已解决到位",
+    "信访人息诉罢访情况": "表示满意认可隐患已消除",
+    "人员稳定情况": "稳定",
+    "备注": "备注信息19"
+  },
+  {
+    "序号": 20,
+    "所属村居": "安庄村",
+    "排查日期": "2024.09.01",
+    "姓名": "信访人20",
+    "身份证号码": "130604197211082345",
+    "详细住址": "安庄村1号",
+    "联系方式": "13098765432",
+    "反映内容摘要": "关于土地纠纷的反映",
+    "内容分类": "土地纠纷",
+    "是否曾发生过信访行为": "否",
+    "是否属于重复上访老户": "否",
+    "涉及群体": "5人以下",
+    "风险等级": "低",
+    "县级包联领导": "孙七（副主任）",
+    "责任单位": "安庄村村委会",
+    "责任人": "责任人20",
+    "是否明确二包一稳控措施": "否",
+    "拟化解日期": "2025.04.15",
+    "实际化解日期": "2024.10.28",
+    "问题解决情况": "已制定解决方案正在推进中",
+    "信访人息诉罢访情况": "表示理解但未完全满意",
+    "人员稳定情况": "稳定",
+    "备注": "备注信息20"
+  }
+];
+
+        // 统计数据
+        const statsData = {
+            "village_stats": {
+                "南五尧村": 3,
+                "东五尧村": 3,
+                "中五尧村": 3,
+                "小汲店村": 3,
+                "安庄村": 4,
+                "北五尧村": 3,
+                "西五尧村": 1
+            },
+            "category_stats": {
+                "劳动保障": 1,
+                "其他问题": 2,
+                "邻里矛盾": 3,
+                "村务管理": 3,
+                "拆迁安置": 2,
+                "土地纠纷": 6,
+                "环境保护": 3
+            },
+            "risk_stats": {
+                "低": 5,
+                "中": 10,
+                "高": 5
+            },
+            "status_stats": {
+                "问题已解决到位": 7,
+                "正在制定解决方案": 6,
+                "已制定解决方案正在推进中": 7
+            },
+            "satisfaction_stats": {
+                "表示满意认可隐患已消除": 7,
+                "表示理解但未完全满意": 7,
+                "表示不满意": 6
+            },
+            "total_records": 20
+        };
+    </script>
+</head>
+
+<body class="bg-gray-50 font-sans">
+    <!-- 顶部导航栏 -->
+    <header class="gradient-bg text-white shadow-lg">
+        <div class="container mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center">
+            <div class="flex items-center mb-4 md:mb-0">
+                <i class="fas fa-chart-line text-2xl mr-3"></i>
+                <h1 class="text-xl md:text-2xl font-bold text-shadow">五尧乡信访矛盾隐患排查化解台账</h1>
+            </div>
+            <div class="flex space-x-4">
+                <button id="importBtn" class="bg-white text-primary hover:bg-gray-100 px-4 py-2 rounded-lg flex items-center transition duration-300">
+                    <i class="fas fa-file-import mr-2"></i>
+                    <span>导入数据</span>
+                </button>
+                <button id="dashboardBtn" class="bg-white text-primary hover:bg-gray-100 px-4 py-2 rounded-lg flex items-center transition duration-300">
+                    <i class="fas fa-tv mr-2"></i>
+                    <span>大屏展示</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主要内容区域 -->
+    <main class="container mx-auto px-4 py-6">
+        <!-- 数据概览卡片 -->
+        <section class="mb-8 animate-fade-in">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-chart-bar text-primary mr-2"></i>
+                数据概览
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- 总记录数 -->
+                <div class="bg-white rounded-xl p-6 card-shadow hover:shadow-lg transition duration-300 animate-slide-up">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm">总记录数</p>
+                            <p class="text-3xl font-bold text-primary" id="totalRecords">20</p>
+                        </div>
+                        <div class="bg-primary/10 p-3 rounded-full">
+                            <i class="fas fa-list-alt text-primary text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 已解决 -->
+                <div class="bg-white rounded-xl p-6 card-shadow hover:shadow-lg transition duration-300 animate-slide-up" style="animation-delay: 0.1s">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm">已解决</p>
+                            <p class="text-3xl font-bold text-success" id="solvedCount">7</p>
+                        </div>
+                        <div class="bg-success/10 p-3 rounded-full">
+                            <i class="fas fa-check-circle text-success text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 处理中 -->
+                <div class="bg-white rounded-xl p-6 card-shadow hover:shadow-lg transition duration-300 animate-slide-up" style="animation-delay: 0.2s">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm">处理中</p>
+                            <p class="text-3xl font-bold text-warning" id="processingCount">13</p>
+                        </div>
+                        <div class="bg-warning/10 p-3 rounded-full">
+                            <i class="fas fa-spinner text-warning text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 高风险 -->
+                <div class="bg-white rounded-xl p-6 card-shadow hover:shadow-lg transition duration-300 animate-slide-up" style="animation-delay: 0.3s">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm">高风险</p>
+                            <p class="text-3xl font-bold text-danger" id="highRiskCount">5</p>
+                        </div>
+                        <div class="bg-danger/10 p-3 rounded-full">
+                            <i class="fas fa-exclamation-triangle text-danger text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 图表展示区域 -->
+        <section class="mb-8 animate-fade-in">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-chart-pie text-primary mr-2"></i>
+                数据分析图表
+            </h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- 问题分类饼图 -->
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">问题分类分布</h3>
+                    <div class="relative h-80">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- 风险等级饼图 -->
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">风险等级分布</h3>
+                    <div class="relative h-80">
+                        <canvas id="riskChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- 村居分布柱状图 -->
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">村居分布情况</h3>
+                    <div class="relative h-80">
+                        <canvas id="villageChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- 解决情况柱状图 -->
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">问题解决情况</h3>
+                    <div class="relative h-80">
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 数据表格区域 -->
+        <section class="animate-fade-in">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-800 flex items-center">
+                    <i class="fas fa-table text-primary mr-2"></i>
+                    详细数据列表
+                </h2>
+                <div class="flex space-x-2">
+                    <div class="relative">
+                        <input type="text" id="searchInput" placeholder="搜索..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                    </div>
+                    <select id="filterSelect" class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <option value="">全部</option>
+                        <option value="高">高风险</option>
+                        <option value="中">中风险</option>
+                        <option value="低">低风险</option>
+                        <option value="问题已解决到位">已解决</option>
+                        <option value="正在制定解决方案">处理中</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl card-shadow overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">序号</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">所属村居</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">排查日期</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">姓名</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">问题分类</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">风险等级</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">解决情况</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dataTableBody" class="bg-white divide-y divide-gray-200">
+                            <!-- 数据将通过JavaScript动态填充 -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- 分页控件 -->
+                <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200">
+                    <div class="flex-1 flex justify-between sm:hidden">
+                        <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            上一页
+                        </a>
+                        <a href="#" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            下一页
+                        </a>
+                    </div>
+                    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-sm text-gray-700">
+                                显示第 <span class="font-medium">1</span> 至 <span class="font-medium">10</span> 条，共 <span class="font-medium" id="totalRecordsText">20</span> 条记录
+                            </p>
+                        </div>
+                        <div>
+                            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <span class="sr-only">上一页</span>
+                                    <i class="fas fa-chevron-left text-xs"></i>
+                                </a>
+                                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-primary text-sm font-medium text-white">
+                                    1
+                                </a>
+                                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                    2
+                                </a>
+                                <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <span class="sr-only">下一页</span>
+                                    <i class="fas fa-chevron-right text-xs"></i>
+                                </a>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 大屏展示模态框 -->
+    <div id="dashboardModal" class="fixed inset-0 bg-black bg-opacity-95 z-50 hidden flex-col items-center justify-center p-4">
+        <div class="w-full max-w-7xl mx-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-white flex items-center">
+                    <i class="fas fa-tv text-primary mr-3"></i>
+                    五尧乡信访矛盾隐患排查化解大屏
+                </h2>
+                <button id="closeDashboard" class="bg-white/10 hover:bg-white/20 text-white p-2 rounded-full transition duration-300">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <!-- 大屏数据卡片 -->
+                <div class="bg-gradient-to-br from-blue-900 to-blue-700 rounded-xl p-6 text-white animate-pulse-slow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-blue-200 text-sm">总记录数</p>
+                            <p class="text-4xl font-bold" id="dashboardTotal">20</p>
+                        </div>
+                        <i class="fas fa-list-alt text-3xl text-blue-300"></i>
+                    </div>
+                </div>
+                
+                <div class="bg-gradient-to-br from-green-900 to-green-700 rounded-xl p-6 text-white animate-pulse-slow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-green-200 text-sm">已解决</p>
+                            <p class="text-4xl font-bold" id="dashboardSolved">7</p>
+                        </div>
+                        <i class="fas fa-check-circle text-3xl text-green-300"></i>
+                    </div>
+                </div>
+                
+                <div class="bg-gradient-to-br from-yellow-900 to-yellow-700 rounded-xl p-6 text-white animate-pulse-slow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-yellow-200 text-sm">处理中</p>
+                            <p class="text-4xl font-bold" id="dashboardProcessing">13</p>
+                        </div>
+                        <i class="fas fa-spinner text-3xl text-yellow-300"></i>
+                    </div>
+                </div>
+                
+                <div class="bg-gradient-to-br from-red-900 to-red-700 rounded-xl p-6 text-white animate-pulse-slow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-red-200 text-sm">高风险</p>
+                            <p class="text-4xl font-bold" id="dashboardHighRisk">5</p>
+                        </div>
+                        <i class="fas fa-exclamation-triangle text-3xl text-red-300"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6">
+                    <h3 class="text-xl font-semibold text-white mb-4">问题分类分布</h3>
+                    <div class="relative h-96">
+                        <canvas id="dashboardCategoryChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6">
+                    <h3 class="text-xl font-semibold text-white mb-4">风险等级分布</h3>
+                    <div class="relative h-96">
+                        <canvas id="dashboardRiskChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6">
+                    <h3 class="text-xl font-semibold text-white mb-4">村居分布情况</h3>
+                    <div class="relative h-96">
+                        <canvas id="dashboardVillageChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6">
+                    <h3 class="text-xl font-semibold text-white mb-4">问题解决情况</h3>
+                    <div class="relative h-96">
+                        <canvas id="dashboardStatusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-6 bg-white/10 backdrop-blur-sm rounded-xl p-6">
+                <h3 class="text-xl font-semibold text-white mb-4">高风险问题列表</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-white/20">
+                        <thead>
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">序号</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">所属村居</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">姓名</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">问题分类</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">排查日期</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">解决情况</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dashboardHighRiskTable" class="divide-y divide-white/10">
+                            <!-- 高风险数据将通过JavaScript动态填充 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 数据导入模态框 -->
+    <div id="importModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-gray-800 flex items-center">
+                        <i class="fas fa-file-import text-primary mr-2"></i>
+                        数据导入
+                    </h2>
+                    <button id="closeImport" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <div class="mb-6">
+                    <label class="block text-gray-700 font-medium mb-2">导入方式</label>
+                    <div class="flex space-x-4">
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="importType" value="single" class="form-radio text-primary" checked>
+                            <span class="ml-2">单个导入</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="importType" value="batch" class="form-radio text-primary">
+                            <span class="ml-2">批量导入</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div id="singleImportForm" class="mb-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">单个数据录入</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-1">所属村居</label>
+                            <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-1">排查日期</label>
+                            <input type="date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-1">姓名</label>
+                            <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-1">身份证号码</label>
+                            <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-1">详细住址</label>
+                            <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-1">联系方式</label>
+                            <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-medium mb-1">反映内容摘要</label>
+                        <textarea class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-1">问题分类</label>
+                            <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                                <option value="">请选择</option>
+                                <option value="土地纠纷">土地纠纷</option>
+                                <option value="拆迁安置">拆迁安置</option>
+                                <option value="邻里矛盾">邻里矛盾</option>
+                                <option value="村务管理">村务管理</option>
+                                <option value="环境保护">环境保护</option>
+                                <option value="劳动保障">劳动保障</option>
+                                <option value="其他问题">其他问题</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-1">风险等级</label>
+                            <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                                <option value="">请选择</option>
+                                <option value="低">低</option>
+                                <option value="中">中</option>
+                                <option value="高">高</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-1">解决情况</label>
+                            <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                                <option value="">请选择</option>
+                                <option value="问题已解决到位">问题已解决到位</option>
+                                <option value="已制定解决方案正在推进中">已制定解决方案正在推进中</option>
+                                <option value="正在制定解决方案">正在制定解决方案</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="batchImportForm" class="mb-6 hidden">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">批量导入</h3>
+                    
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                        <i class="fas fa-file-excel text-4xl text-green-500 mb-4"></i>
+                        <p class="text-gray-700 mb-4">拖拽Excel文件到此处或点击上传</p>
+                        <input type="file" id="excelFile" accept=".xlsx, .xls" class="hidden">
+                        <button id="uploadBtn" class="bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-lg transition duration-300">
+                            <i class="fas fa-upload mr-2"></i>
+                            选择文件
+                        </button>
+                        <p class="text-sm text-gray-500 mt-4">支持 .xlsx, .xls 格式文件</p>
+                    </div>
+                    
+                    <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <h4 class="font-semibold text-blue-800 mb-2">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            导入说明
+                        </h4>
+                        <ul class="text-sm text-blue-700 space-y-1">
+                            <li>• 请使用标准的台账模板进行导入</li>
+                            <li>• 确保Excel文件格式正确，列名与系统匹配</li>
+                            <li>• 批量导入将覆盖现有数据，请谨慎操作</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end space-x-4">
+                    <button id="cancelImport" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-300">
+                        取消
+                    </button>
+                    <button id="confirmImport" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition duration-300">
+                        <i class="fas fa-save mr-2"></i>
+                        保存数据
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 详情查看模态框 -->
+    <div id="detailModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-gray-800 flex items-center">
+                        <i class="fas fa-eye text-primary mr-2"></i>
+                        详细信息
+                    </h2>
+                    <button id="closeDetail" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <div id="detailContent">
+                    <!-- 详情内容将通过JavaScript动态填充 -->
+                </div>
+                
+                <div class="flex justify-end mt-6 space-x-4">
+                    <button id="editDetail" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-300">
+                        <i class="fas fa-edit mr-2"></i>
+                        编辑
+                    </button>
+                    <button id="closeDetailBtn" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition duration-300">
+                        关闭
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化图表
+            initCharts();
+            
+            // 加载数据表格
+            loadDataTable(mockData);
+            
+            // 更新统计数据
+            updateStatistics();
+            
+            // 加载大屏高风险数据
+            loadHighRiskData();
+            
+            // 事件监听
+            setupEventListeners();
+        });
+
+        // 初始化图表
+        function initCharts() {
+            // 问题分类饼图
+            const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+            new Chart(categoryCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(statsData.category_stats),
+                    datasets: [{
+                        data: Object.values(statsData.category_stats),
+                        backgroundColor: [
+                            '#3b82f6', '#10b981', '#f59e0b', '#ef4444',
+                            '#8b5cf6', '#06b6d4', '#84cc16'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 风险等级饼图
+            const riskCtx = document.getElementById('riskChart').getContext('2d');
+            new Chart(riskCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(statsData.risk_stats),
+                    datasets: [{
+                        data: Object.values(statsData.risk_stats),
+                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 村居分布柱状图
+            const villageCtx = document.getElementById('villageChart').getContext('2d');
+            new Chart(villageCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(statsData.village_stats),
+                    datasets: [{
+                        label: '问题数量',
+                        data: Object.values(statsData.village_stats),
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 解决情况柱状图
+            const statusCtx = document.getElementById('statusChart').getContext('2d');
+            new Chart(statusCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(statsData.status_stats),
+                    datasets: [{
+                        label: '问题数量',
+                        data: Object.values(statsData.status_stats),
+                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 初始化大屏图表
+            initDashboardCharts();
+        }
+
+        // 初始化大屏图表
+        function initDashboardCharts() {
+            // 大屏问题分类饼图
+            const dashCategoryCtx = document.getElementById('dashboardCategoryChart').getContext('2d');
+            new Chart(dashCategoryCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(statsData.category_stats),
+                    datasets: [{
+                        data: Object.values(statsData.category_stats),
+                        backgroundColor: [
+                            '#3b82f6', '#10b981', '#f59e0b', '#ef4444',
+                            '#8b5cf6', '#06b6d4', '#84cc16'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#ffffff',
+                                padding: 20,
+                                usePointStyle: true,
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 大屏风险等级饼图
+            const dashRiskCtx = document.getElementById('dashboardRiskChart').getContext('2d');
+            new Chart(dashRiskCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(statsData.risk_stats),
+                    datasets: [{
+                        data: Object.values(statsData.risk_stats),
+                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#ffffff',
+                                padding: 20,
+                                usePointStyle: true,
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 大屏村居分布柱状图
+            const dashVillageCtx = document.getElementById('dashboardVillageChart').getContext('2d');
+            new Chart(dashVillageCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(statsData.village_stats),
+                    datasets: [{
+                        label: '问题数量',
+                        data: Object.values(statsData.village_stats),
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#ffffff',
+                                stepSize: 1
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#ffffff'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 大屏解决情况柱状图
+            const dashStatusCtx = document.getElementById('dashboardStatusChart').getContext('2d');
+            new Chart(dashStatusCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(statsData.status_stats),
+                    datasets: [{
+                        label: '问题数量',
+                        data: Object.values(statsData.status_stats),
+                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#ffffff',
+                                stepSize: 1
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#ffffff'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 加载数据表格
+        function loadDataTable(data) {
+            const tableBody = document.getElementById('dataTableBody');
+            tableBody.innerHTML = '';
+            
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50 transition duration-200';
+                
+                // 根据风险等级设置样式
+                let riskClass = '';
+                if (item.风险等级 === '高') riskClass = 'text-danger font-semibold';
+                else if (item.风险等级 === '中') riskClass = 'text-warning font-semibold';
+                else riskClass = 'text-success font-semibold';
+                
+                // 根据解决情况设置样式
+                let statusClass = '';
+                if (item.问题解决情况 === '问题已解决到位') statusClass = 'text-success font-semibold';
+                else if (item.问题解决情况 === '已制定解决方案正在推进中') statusClass = 'text-warning font-semibold';
+                else statusClass = 'text-danger font-semibold';
+                
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.序号}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.所属村居}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.排查日期}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.姓名}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.内容分类}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm ${riskClass}">${item.风险等级}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm ${statusClass}">${item.问题解决情况}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <button class="view-detail text-primary hover:text-primary/80 mr-3" data-id="${item.序号}">
+                            <i class="fas fa-eye mr-1"></i>查看
+                        </button>
+                        <button class="edit-detail text-gray-600 hover:text-gray-900 mr-3" data-id="${item.序号}">
+                            <i class="fas fa-edit mr-1"></i>编辑
+                        </button>
+                        <button class="delete-detail text-danger hover:text-danger/80" data-id="${item.序号}">
+                            <i class="fas fa-trash mr-1"></i>删除
+                        </button>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+            
+            // 绑定查看详情事件
+            document.querySelectorAll('.view-detail').forEach(button => {
+                button.addEventListener('click', function() {
+                    const id = parseInt(this.getAttribute('data-id'));
+                    showDetail(id);
+                });
+            });
+        }
+
+        // 更新统计数据
+        function updateStatistics() {
+            document.getElementById('totalRecords').textContent = statsData.total_records;
+            document.getElementById('solvedCount').textContent = statsData.status_stats['问题已解决到位'];
+            document.getElementById('processingCount').textContent = statsData.status_stats['正在制定解决方案'] + statsData.status_stats['已制定解决方案正在推进中'];
+            document.getElementById('highRiskCount').textContent = statsData.risk_stats['高'];
+            document.getElementById('totalRecordsText').textContent = statsData.total_records;
+            
+            // 更新大屏统计数据
+            document.getElementById('dashboardTotal').textContent = statsData.total_records;
+            document.getElementById('dashboardSolved').textContent = statsData.status_stats['问题已解决到位'];
+            document.getElementById('dashboardProcessing').textContent = statsData.status_stats['正在制定解决方案'] + statsData.status_stats['已制定解决方案正在推进中'];
+            document.getElementById('dashboardHighRisk').textContent = statsData.risk_stats['高'];
+        }
+
+        // 加载高风险数据到大屏
+        function loadHighRiskData() {
+            const highRiskData = mockData.filter(item => item.风险等级 === '高');
+            const tableBody = document.getElementById('dashboardHighRiskTable');
+            tableBody.innerHTML = '';
+            
+            highRiskData.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white">${item.序号}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white">${item.所属村居}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white">${item.姓名}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white">${item.内容分类}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white">${item.排查日期}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-red-300 font-semibold">${item.问题解决情况}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // 显示详情
+        function showDetail(id) {
+            const item = mockData.find(item => item.序号 === id);
+            if (!item) return;
+            
+            const detailContent = document.getElementById('detailContent');
+            
+            // 构建详情HTML
+            detailContent.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500">基本信息</h3>
+                            <div class="mt-2 grid grid-cols-1 gap-4">
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <p class="text-sm text-gray-600">序号</p>
+                                    <p class="font-semibold">${item.序号}</p>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <p class="text-sm text-gray-600">所属村居</p>
+                                    <p class="font-semibold">${item.所属村居}</p>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <p class="text-sm text-gray-600">排查日期</p>
+                                    <p class="font-semibold">${item.排查日期}</p>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <p class="text-sm text-gray-600">姓名</p>
+                                    <p class="font-semibold">${item.姓名}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500">联系方式</h3>
+                            <div class="mt-2 grid grid-cols-1 gap-4">
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <p class="text-sm text-gray-600">身份证号码</p>
+                                    <p class="font-semibold">${item.身份证号码}</p>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <p class="text-sm text-gray-600">详细住址</p>
+                                    <p class="font-semibold">${item.详细住址}</p>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <p class="text-sm text-gray-600">联系方式</p>
+                                    <p class="font-semibold">${item.联系方式}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500">问题信息</h3>
+                            <div class="mt-2 grid grid-cols-1 gap-4">
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <p class="text-sm text-gray-600">反映内容摘要</p>
+                                    <p class="font-semibold">${item.反映内容摘要}</p>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <p class="text-sm text-gray-600">问题分类</p>
+                                    <p class="font-semibold">${item.内容分类}</p>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <p class="text-sm text-gray-600">风险等级</p>
+                                    <p class="font-semibold ${item.风险等级 === '高' ? 'text-danger' : item.风险等级 === '中' ? 'text-warning' : 'text-success'}">${item.风险等级}</p>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <p class="text-sm text-gray-600">是否重复上访</p>
+                                    <p class="font-semibold">${item.是否属于重复上访老户}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500">处理情况</h3>
+                            <div class="mt-2 grid grid-cols-1 gap-4">
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <p class="text-sm text-gray-600">包联领导</p>
+                                    <p class="font-semibold">${item.县级包联领导}</p>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <p class="text-sm text-gray-600">责任单位</p>
+                                    <p class="font-semibold">${item.责任单位}</p>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <p class="text-sm text-gray-600">责任人</p>
+                                    <p class="font-semibold">${item.责任人}</p>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <p class="text-sm text-gray-600">解决情况</p>
+                                    <p class="font-semibold ${item.问题解决情况 === '问题已解决到位' ? 'text-success' : item.问题解决情况 === '已制定解决方案正在推进中' ? 'text-warning' : 'text-danger'}">${item.问题解决情况}</p>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <p class="text-sm text-gray-600">息诉罢访情况</p>
+                                    <p class="font-semibold">${item.信访人息诉罢访情况}</p>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <p class="text-sm text-gray-600">备注</p>
+                                    <p class="font-semibold">${item.备注}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // 显示详情模态框
+            document.getElementById('detailModal').classList.remove('hidden');
+        }
+
+        // 设置事件监听
+        function setupEventListeners() {
+            // 大屏展示按钮
+            document.getElementById('dashboardBtn').addEventListener('click', function() {
+                document.getElementById('dashboardModal').classList.remove('hidden');
+            });
+            
+            // 关闭大屏
+            document.getElementById('closeDashboard').addEventListener('click', function() {
+                document.getElementById('dashboardModal').classList.add('hidden');
+            });
+            
+            // 导入数据按钮
+            document.getElementById('importBtn').addEventListener('click', function() {
+                document.getElementById('importModal').classList.remove('hidden');
+            });
+            
+            // 关闭导入模态框
+            document.getElementById('closeImport').addEventListener('click', function() {
+                document.getElementById('importModal').classList.add('hidden');
+            });
+            
+            // 取消导入
+            document.getElementById('cancelImport').addEventListener('click', function() {
+                document.getElementById('importModal').classList.add('hidden');
+            });
+            
+            // 关闭详情模态框
+            document.getElementById('closeDetail').addEventListener('click', function() {
+                document.getElementById('detailModal').classList.add('hidden');
+            });
+            
+            document.getElementById('closeDetailBtn').addEventListener('click', function() {
+                document.getElementById('detailModal').classList.add('hidden');
+            });
+            
+            // 导入方式切换
+            document.querySelectorAll('input[name="importType"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (this.value === 'single') {
+                        document.getElementById('singleImportForm').classList.remove('hidden');
+                        document.getElementById('batchImportForm').classList.add('hidden');
+                    } else {
+                        document.getElementById('singleImportForm').classList.add('hidden');
+                        document.getElementById('batchImportForm').classList.remove('hidden');
+                    }
+                });
+            });
+            
+            // 上传文件按钮
+            document.getElementById('uploadBtn').addEventListener('click', function() {
+                document.getElementById('excelFile').click();
+            });
+            
+            // 文件选择事件
+            document.getElementById('excelFile').addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    const fileName = e.target.files[0].name;
+                    alert(`已选择文件: ${fileName}\n\n批量导入功能将在实际部署时实现`);
+                }
+            });
+            
+            // 确认导入
+            document.getElementById('confirmImport').addEventListener('click', function() {
+                alert('数据导入成功！\n\n在实际部署时，这里将处理真实的数据导入逻辑');
+                document.getElementById('importModal').classList.add('hidden');
+            });
+            
+            // 搜索功能
+            document.getElementById('searchInput').addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const filteredData = mockData.filter(item => {
+                    return Object.values(item).some(value => {
+                        return value && value.toString().toLowerCase().includes(searchTerm);
+                    });
+                });
+                loadDataTable(filteredData);
+            });
+            
+            // 筛选功能
+            document.getElementById('filterSelect').addEventListener('change', function() {
+                const filterValue = this.value;
+                if (!filterValue) {
+                    loadDataTable(mockData);
+                    return;
+                }
+                
+                let filteredData;
+                if (filterValue === '高' || filterValue === '中' || filterValue === '低') {
+                    filteredData = mockData.filter(item => item.风险等级 === filterValue);
+                } else if (filterValue === '已解决') {
+                    filteredData = mockData.filter(item => item.问题解决情况 === '问题已解决到位');
+                } else if (filterValue === '处理中') {
+                    filteredData = mockData.filter(item => 
+                        item.问题解决情况 === '正在制定解决方案' || 
+                        item.问题解决情况 === '已制定解决方案正在推进中'
+                    );
+                }
+                
+                loadDataTable(filteredData);
+            });
+        }
+    </script>
+</body>
+</html>
